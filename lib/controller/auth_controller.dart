@@ -24,7 +24,8 @@ class AuthController extends GetxController {
     'DJANGO Developer'
   ];
   List<UserModel> userList = [];
-  void login() async {
+
+  Future<void> login() async {
     final form = logInFormKey.currentState;
     if (form!.validate()) {
       await _refreshUsereUi();
