@@ -20,6 +20,7 @@ class Homepage extends GetView<HomeController> {
           IconButton(
               onPressed: () {
                 Get.offAll(() => LoginPage());
+          
               },
               icon: const Icon(Icons.logout))
         ],

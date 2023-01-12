@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:movie_details/helpers/error_handling.dart';
@@ -27,23 +29,21 @@ class AuthController extends GetxController {
     if (form!.validate()) {
       await _refreshUsereUi();
       try {
-        if (_exits(emailController.text.trim())) {
-          for (UserModel model in userList) {
-            if (model.email == emailController.text.trim() &&
-                model.password == passController.text.trim()) {
-              Get.offAll(() => Homepage(userName: model.name));
-              break;
-            } else {
-              ErrorHandlers.showDialogue('Email and Password not Match');
-            }
+        UserModel? model = _exitsModel(emailController.text.trim());
+        if (model != null) {
+          if (model.password == passController.text.trim()) {
+            Get.offAll(() => Homepage(userName: model.name));
+            controllerClear();
+          } else {
+            ErrorHandlers.showDialogue('Email and Password not match');
           }
         } else {
-          ErrorHandlers.showDialogue('Account not Found, SignUP Now');
+          ErrorHandlers.showDialogue('Account not found');
           controllerClear();
           Get.off(() => const SignUpPage());
         }
       } catch (e) {
-        ErrorHandlers.showDialogue('Account not Found');
+        ErrorHandlers.showDialogue('Somthing went wrong');
       }
     }
   }
@@ -62,17 +62,20 @@ class AuthController extends GetxController {
       if (!_exits(model.email)) {
         try {
           await MovieService.userAdd(model);
+          controllerClear();
           Get.offAll(() => Homepage(userName: model.name));
         } catch (e) {
           ErrorHandlers.toastMessage(e.toString());
         }
       } else {
         ErrorHandlers.showDialogue('Email Already exits');
+        controllerClear();
+        Get.offAll(() => LoginPage());
       }
     }
   }
 
-  _exits(String email) {
+  bool _exits(String email) {
     for (UserModel item in userList) {
       if (item.email == email) {
         return true;
@@ -81,13 +84,22 @@ class AuthController extends GetxController {
     return false;
   }
 
+  UserModel? _exitsModel(String email) {
+    for (UserModel item in userList) {
+      if (item.email == email) {
+        return item;
+      }
+    }
+    return null;
+  }
+
   Future<void> _refreshUsereUi() async {
     List<UserModel> list = await MovieService.getAllUser();
     userList.clear();
     userList.addAll(list);
   }
 
-  controllerClear() {
+  void controllerClear() {
     emailController.clear();
     mobileController.clear();
     nameController.clear();

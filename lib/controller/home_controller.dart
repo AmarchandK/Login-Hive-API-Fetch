@@ -23,7 +23,6 @@ class HomeController extends GetxController {
       data = response.result;
     }
     isLoading.value = !isLoading.value;
-
     update();
   }
 }
